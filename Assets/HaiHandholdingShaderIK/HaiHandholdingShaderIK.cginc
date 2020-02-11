@@ -28,7 +28,6 @@ float3x3 rotation(float angle, float3 axis)
 
 float4 findMatchingLightAsLocalPosition(
     float targetLightIntensity, // when set to a negative value, it will match any black light
-    bool mustFindClosestMatch,
     float4 orElseDefaultLocalPosition,
     float maxDistance)
 {
@@ -51,10 +50,6 @@ float4 findMatchingLightAsLocalPosition(
 
             if ((!candidateFound || currentDistSq < distSq) && sqrt(currentDistSq) <= maxDistance)
             {
-                if (!mustFindClosestMatch) {
-                    return current;
-                }
-
                 target = current;
                 distSq = currentDistSq;
                 candidateFound = true;
@@ -71,7 +66,7 @@ float4 transformArm(
     float4 vertex, // input vertex position
     float4 vertexColor, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
     float targetLightIntensity, // when set to a negative value, any black light will be matched
-    bool mustFindClosestMatch, // when set to true, target will be the closest distance to the shoulder instead of the first match
+    bool mustFindClosestMatch_DEPRECATED, // DEPRECATED: Always find the closest match
     float4 orElseDefaultLocalPosition, // hand rest position when no light matches or when it is too far
     float upperarmLength, // length of the upper arm
     float forearmLength, // length of the forearm up to the palm of the hand
@@ -99,7 +94,6 @@ float4 transformArm(
     float totalArmLength = upperarmLength + forearmLength;
     float4 computationLocalPos = findMatchingLightAsLocalPosition(
         targetLightIntensity,
-        mustFindClosestMatch,
         orElseDefaultLocalPosition,
         totalArmLength + extraGrabLength + flexBackLength + defaultLength
     );
@@ -165,8 +159,8 @@ float4 transformArm(
     return float4(outputVertex, 1);
 }
 
-float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm) {
-    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.7, isLeftArm);
+float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch_DEPRECATED, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm) {
+    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch_DEPRECATED, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.7, isLeftArm);
 }
 
 #endif
