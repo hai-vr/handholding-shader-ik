@@ -105,6 +105,11 @@ float4 transformArm(
     float forearmFlexAngle = acos((distToTargetSq - upperarmLength * upperarmLength - forearmLength * forearmLength) / (-2 * upperarmLength * forearmLength));
     float entirearmFlexAngle = asin((forearmLength * sin(forearmFlexAngle)) / distToTarget);
 
+    if (isnan(forearmFlexAngle))
+    {
+        forearmFlexAngle = HAI_pi;
+        entirearmFlexAngle = 0;
+    }
     if (isnan(entirearmFlexAngle))
     {
         forearmFlexAngle = 0;
