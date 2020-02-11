@@ -76,6 +76,9 @@ float4 transformArm(
     float upperarmLength, // length of the upper arm
     float forearmLength, // length of the forearm up to the palm of the hand
     float extraGrabLength, // arm will point towards the target even when out of reach, up to this extra length limit
+    float flexBackLength, // arm will lerp back away from the target over the course of this length
+    float defaultLength, // arm will lerp towards the rest position over the course of this length
+    float flexBackRatio, // arm will lerp back away from the target by this ratio of the total arm length (upperarmLength + forearmLength)
     bool isLeftArm) // when set to true, will mirror some rotations (for use with left arm)
 {
     if (vertexColor.r > 0.7 && vertexColor.g > 0.7 && vertexColor.b > 0.7)
@@ -92,14 +95,29 @@ float4 transformArm(
         isForearm = true;
     }
 
-    // calculate target attributes
-    float4 targetLocalPos = findMatchingLightAsLocalPosition(
+    // calculate the virtual target
+    float totalArmLength = upperarmLength + forearmLength;
+    float4 computationLocalPos = findMatchingLightAsLocalPosition(
         targetLightIntensity,
         mustFindClosestMatch,
         orElseDefaultLocalPosition,
-        upperarmLength + forearmLength + extraGrabLength
+        totalArmLength + extraGrabLength + flexBackLength + defaultLength
     );
 
+    float distToComputation = sqrt(computationLocalPos.x * computationLocalPos.x + computationLocalPos.y * computationLocalPos.y + computationLocalPos.z * computationLocalPos.z);
+
+    float4 targetLocalPos;
+    if (distToComputation < totalArmLength) {
+        targetLocalPos = computationLocalPos;
+
+    } else if (distToComputation < totalArmLength + extraGrabLength) {
+        targetLocalPos = normalize(computationLocalPos) * totalArmLength;
+
+    } else {
+        targetLocalPos = orElseDefaultLocalPosition;
+    }
+
+    // calculate target attributes
     float distToTargetSq = targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y + targetLocalPos.z * targetLocalPos.z;
     float distToTarget = sqrt(distToTargetSq);
 
@@ -145,6 +163,10 @@ float4 transformArm(
     outputVertex = lerp(outputVertex, vertex, vertexColor.b);
 
     return float4(outputVertex, 1);
+}
+
+float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm) {
+    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.7, isLeftArm);
 }
 
 #endif
