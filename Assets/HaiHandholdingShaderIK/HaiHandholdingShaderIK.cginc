@@ -85,8 +85,10 @@ float4 transformArm(
     }
 
     bool isForearm = false;
-    if (vertexColor.g == 0 && vertexColor.b == 0) // HAND + FOREARM
+    float forearmRatio = 0;
+    if (vertexColor.r >= 0.2) // HAND + FOREARM
     {
+        forearmRatio = vertexColor.r;
         isForearm = true;
     }
 
@@ -133,12 +135,14 @@ float4 transformArm(
     if (isArmFlexSolved && isForearm)
     {
         float4 ARMVEC = float4(upperarmLength, 0, 0, 0);
-        outputVertex = mul( rotation(forearmFlexAngle + HAI_pi, HAI_Y_AXIS), outputVertex - ARMVEC ) + ARMVEC;
+        outputVertex = lerp(outputVertex, mul( rotation(forearmFlexAngle + HAI_pi, HAI_Y_AXIS), outputVertex - ARMVEC ) + ARMVEC, forearmRatio);
     }
 
     outputVertex = mul( rotation(pitch + entirearmFlexAngle, HAI_Y_AXIS), outputVertex);
     outputVertex = mul( rotation(yaw, HAI_Z_AXIS), outputVertex);
     outputVertex = mul( rotation(roll, normalize( float4(targetLocalPos.xyz, 0) )), outputVertex);
+
+    outputVertex = lerp(outputVertex, vertex, vertexColor.b);
 
     return float4(outputVertex, 1);
 }
