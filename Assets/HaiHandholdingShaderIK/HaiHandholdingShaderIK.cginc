@@ -92,22 +92,30 @@ float4 transformArm(
 
     // calculate the virtual target
     float totalArmLength = upperarmLength + forearmLength;
-    float4 computationLocalPos = findMatchingLightAsLocalPosition(
+    float3 computationLocalPos = findMatchingLightAsLocalPosition(
         targetLightIntensity,
         orElseDefaultLocalPosition,
         totalArmLength + extraGrabLength + flexBackLength + defaultLength
-    );
+    ).xyz;
 
     float distToComputation = sqrt(computationLocalPos.x * computationLocalPos.x + computationLocalPos.y * computationLocalPos.y + computationLocalPos.z * computationLocalPos.z);
 
-    float4 targetLocalPos;
-    if (distToComputation < totalArmLength) {
+    float3 targetLocalPos;
+    if (distToComputation < totalArmLength)
+    {
         targetLocalPos = computationLocalPos;
-
-    } else if (distToComputation < totalArmLength + extraGrabLength) {
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength)
+    {
         targetLocalPos = normalize(computationLocalPos) * totalArmLength;
-
-    } else {
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength + defaultLength)
+    {
+        float lerpFactor = (distToComputation - totalArmLength - extraGrabLength) / defaultLength;
+        targetLocalPos = lerp(normalize(computationLocalPos) * totalArmLength, orElseDefaultLocalPosition, lerpFactor);
+    }
+    else
+    {
         targetLocalPos = orElseDefaultLocalPosition;
     }
 
@@ -159,7 +167,8 @@ float4 transformArm(
     return float4(outputVertex, 1);
 }
 
-float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch_DEPRECATED, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm) {
+float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch_DEPRECATED, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm)
+{
     return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch_DEPRECATED, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.7, isLeftArm);
 }
 
