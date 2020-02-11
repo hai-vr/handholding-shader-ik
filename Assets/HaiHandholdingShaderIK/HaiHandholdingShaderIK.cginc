@@ -157,7 +157,6 @@ float4 transformArm(
     float distToTarget = sqrt(distToTargetSq);
 
     // calculate rotation angles
-    bool isArmFlexSolved = false;
     float forearmFlexAngle = acos((distToTargetSq - upperarmLength * upperarmLength - forearmLength * forearmLength) / (-2 * upperarmLength * forearmLength));
     float entirearmFlexAngle = asin((forearmLength * sin(forearmFlexAngle)) / distToTarget);
 
@@ -166,14 +165,10 @@ float4 transformArm(
         forearmFlexAngle = HAI_pi;
         entirearmFlexAngle = 0;
     }
+
     if (isnan(entirearmFlexAngle))
     {
-        forearmFlexAngle = 0;
-        entirearmFlexAngle = 0;
-    }
-    else
-    {
-        isArmFlexSolved = true;
+        entirearmFlexAngle = HAI_pi / 2;
     }
 
     float pitch = -atan(targetLocalPos.z / sqrt( targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y ));
@@ -185,7 +180,7 @@ float4 transformArm(
 
     float3 HAI_Y_AXIS = float3(0, 1, 0);
     float3 HAI_Z_AXIS = float3(0, 0, 1);
-    if (isArmFlexSolved && isForearm)
+    if (isForearm)
     {
         float4 ARMVEC = float4(upperarmLength, 0, 0, 0);
         outputVertex = lerp(outputVertex, mul( rotation(forearmFlexAngle + HAI_pi, HAI_Y_AXIS), outputVertex - ARMVEC ) + ARMVEC, forearmRatio);
