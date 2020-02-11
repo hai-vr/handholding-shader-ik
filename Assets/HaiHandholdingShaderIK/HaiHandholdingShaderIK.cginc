@@ -109,10 +109,23 @@ float4 transformArm(
     {
         targetLocalPos = normalize(computationLocalPos) * totalArmLength;
     }
-    else if (distToComputation < totalArmLength + extraGrabLength + defaultLength)
+    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength)
     {
         float lerpFactor = (distToComputation - totalArmLength - extraGrabLength) / defaultLength;
-        targetLocalPos = lerp(normalize(computationLocalPos) * totalArmLength, orElseDefaultLocalPosition, lerpFactor);
+        targetLocalPos = lerp(
+            normalize(computationLocalPos) * totalArmLength,
+            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
+            lerpFactor
+        );
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength + defaultLength)
+    {
+        float lerpFactor = (distToComputation - totalArmLength - flexBackLength - extraGrabLength) / defaultLength;
+        targetLocalPos = lerp(
+            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
+            orElseDefaultLocalPosition,
+            lerpFactor
+        );
     }
     else
     {
@@ -169,7 +182,7 @@ float4 transformArm(
 
 float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch_DEPRECATED, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm)
 {
-    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch_DEPRECATED, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.7, isLeftArm);
+    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch_DEPRECATED, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.95, isLeftArm);
 }
 
 #endif
