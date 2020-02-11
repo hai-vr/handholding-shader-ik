@@ -41,7 +41,7 @@ float4 findMatchingLightAsLocalPosition(
         half4 lightColor = unity_LightColor[i];
         if (
             lightColor.r == 0 && lightColor.g == 0 && lightColor.b == 0
-            && unity_4LightPosX0[i] != 0 && unity_4LightPosY0[i] != 0 && unity_4LightPosZ0[i] != 0
+            && !(unity_4LightPosX0[i] == 0 && unity_4LightPosY0[i] == 0 && unity_4LightPosZ0[i] == 0)
             && (targetLightIntensity < 0 || abs(lightColor.a - targetLightIntensity) < 0.001)
         )
         {
