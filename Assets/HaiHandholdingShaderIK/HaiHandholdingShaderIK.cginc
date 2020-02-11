@@ -33,7 +33,7 @@ float4 findMatchingLightAsLocalPosition(
     float maxDistance)
 {
     float4 target = orElseDefaultLocalPosition;
-    float distSq;
+    float distSq = 1e+15;
     bool candidateFound = false;
 
     uint i;
@@ -48,7 +48,7 @@ float4 findMatchingLightAsLocalPosition(
             float4 current = mul ( unity_WorldToObject, float4(unity_4LightPosX0[i], unity_4LightPosY0[i], unity_4LightPosZ0[i], 1));
             float currentDistSq = current.x * current.x + current.y * current.y + current.z * current.z;
 
-            if ((!candidateFound || currentDistSq < distSq) && sqrt(distSq) <= maxDistance)
+            if ((!candidateFound || currentDistSq < distSq) && sqrt(currentDistSq) <= maxDistance)
             {
                 if (!mustFindClosestMatch) {
                     return current;
