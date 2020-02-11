@@ -6,6 +6,7 @@
 		_EnableFakeArm ("Enable Fake arm (for use with gesture animation)", Float) = 1
 		_BoneLength ("Length of a bone", Float) = 2000
 		_ExtraForearmLength ("Addition length of the forearm and hand", Float) = 500
+		_ExtraGrabRatio ("Ratio of extra reach toward light", Float) = 0.5
 		_ShaderIKTargetLightIntensity ("Shader IK Target light intensity", Float) = 0.1234
 	}
 	SubShader
@@ -48,8 +49,9 @@
             float _EnableFakeArm;
 			float _BoneLength;
             float _ExtraForearmLength;
+            float _ExtraGrabRatio;
             float _ShaderIKTargetLightIntensity;
-			
+
 			v2f vert (appdata v)
 			{
 				v2f o;
@@ -66,7 +68,7 @@
                         float4(0.001, -0.002, -0.003, 1), // hand rest position when no light matches or when it is too far
                         _BoneLength / 1000000, // length of the upper arm
                         (_BoneLength + _ExtraForearmLength) / 1000000, // length of the forearm up to the palm of the hand
-                        (_BoneLength * 2 + _ExtraForearmLength) / 1000000, // arm will point towards the target even when out of reach, up to this extra length limit
+                        (_BoneLength * _ExtraGrabRatio + _ExtraForearmLength) / 1000000, // arm will point towards the target even when out of reach, up to this extra length limit
                         false
                     )
                 );
