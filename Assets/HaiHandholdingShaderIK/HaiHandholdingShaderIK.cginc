@@ -60,13 +60,56 @@ float4 findMatchingLightAsLocalPosition(
     return target;
 }
 
+float3 calculateVirtualTarget(
+    float3 computationLocalPos,
+    float totalArmLength,
+    float extraGrabLength,
+    float flexBackLength,
+    float defaultLength,
+    float flexBackRatio,
+    float4 orElseDefaultLocalPosition)
+{
+    float distToComputation = sqrt(computationLocalPos.x * computationLocalPos.x + computationLocalPos.y * computationLocalPos.y + computationLocalPos.z * computationLocalPos.z);
+    if (distToComputation < totalArmLength)
+    {
+        return computationLocalPos;
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength)
+    {
+        return normalize(computationLocalPos) * totalArmLength;
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength)
+    {
+        float lerpFactor = (distToComputation - totalArmLength - extraGrabLength) / defaultLength;
+        return lerp(
+            normalize(computationLocalPos) * totalArmLength,
+            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
+            lerpFactor
+        );
+    }
+    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength + defaultLength)
+    {
+        float lerpFactor = (distToComputation - totalArmLength - flexBackLength - extraGrabLength) / defaultLength;
+        return lerp(
+            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
+            orElseDefaultLocalPosition,
+            lerpFactor
+        );
+    }
+    else
+    {
+        // this function doesn't need to know, but this branch should not be entered in normal conditions
+        // as it is already past the maxDistance when searching for lights
+        return orElseDefaultLocalPosition;
+    }
+}
+
 #define HAI_pi float(3.14159265359)
 
 float4 transformArm(
     float4 vertex, // input vertex position
     float4 vertexColor, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
     float targetLightIntensity, // when set to a negative value, any black light will be matched
-    bool mustFindClosestMatch_DEPRECATED, // DEPRECATED: Always find the closest match
     float4 orElseDefaultLocalPosition, // hand rest position when no light matches or when it is too far
     float upperarmLength, // length of the upper arm
     float forearmLength, // length of the forearm up to the palm of the hand
@@ -90,7 +133,7 @@ float4 transformArm(
         isForearm = true;
     }
 
-    // calculate the virtual target
+    // find the target
     float totalArmLength = upperarmLength + forearmLength;
     float3 computationLocalPos = findMatchingLightAsLocalPosition(
         targetLightIntensity,
@@ -98,39 +141,16 @@ float4 transformArm(
         totalArmLength + extraGrabLength + flexBackLength + defaultLength
     ).xyz;
 
-    float distToComputation = sqrt(computationLocalPos.x * computationLocalPos.x + computationLocalPos.y * computationLocalPos.y + computationLocalPos.z * computationLocalPos.z);
-
-    float3 targetLocalPos;
-    if (distToComputation < totalArmLength)
-    {
-        targetLocalPos = computationLocalPos;
-    }
-    else if (distToComputation < totalArmLength + extraGrabLength)
-    {
-        targetLocalPos = normalize(computationLocalPos) * totalArmLength;
-    }
-    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength)
-    {
-        float lerpFactor = (distToComputation - totalArmLength - extraGrabLength) / defaultLength;
-        targetLocalPos = lerp(
-            normalize(computationLocalPos) * totalArmLength,
-            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
-            lerpFactor
-        );
-    }
-    else if (distToComputation < totalArmLength + extraGrabLength + flexBackLength + defaultLength)
-    {
-        float lerpFactor = (distToComputation - totalArmLength - flexBackLength - extraGrabLength) / defaultLength;
-        targetLocalPos = lerp(
-            normalize(computationLocalPos) * totalArmLength * flexBackRatio,
-            orElseDefaultLocalPosition,
-            lerpFactor
-        );
-    }
-    else
-    {
-        targetLocalPos = orElseDefaultLocalPosition;
-    }
+    // calculate a virtual target within reach of the arm (it is assumed that orElseDefaultLocalPosition is within reach)
+    float3 targetLocalPos = calculateVirtualTarget(
+        computationLocalPos,
+        totalArmLength,
+        extraGrabLength,
+        flexBackLength,
+        defaultLength,
+        flexBackRatio,
+        orElseDefaultLocalPosition
+    );
 
     // calculate target attributes
     float distToTargetSq = targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y + targetLocalPos.z * targetLocalPos.z;
@@ -180,9 +200,10 @@ float4 transformArm(
     return float4(outputVertex, 1);
 }
 
+// overload for backwards compatibility
 float4 transformArm(float4 vertex, float4 vertexColor, float targetLightIntensity, bool mustFindClosestMatch_DEPRECATED, float4 orElseDefaultLocalPosition, float upperarmLength, float forearmLength, float extraGrabLength, bool isLeftArm)
 {
-    return transformArm(vertex, vertexColor, targetLightIntensity, mustFindClosestMatch_DEPRECATED, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.95, isLeftArm);
+    return transformArm(vertex, vertexColor, targetLightIntensity, orElseDefaultLocalPosition, upperarmLength, forearmLength, extraGrabLength, extraGrabLength, extraGrabLength, 0.95, isLeftArm);
 }
 
 #endif
