@@ -26,12 +26,11 @@ float3x3 rotation(float angle, float3 axis)
     );
 }
 
-float4 findMatchingLightAsLocalPosition(
+float4 maybeFindMatchingLightAsLocalPosition(
     float targetLightIntensity, // when set to a negative value, it will match any black light
-    float4 orElseDefaultLocalPosition,
     float maxDistance)
 {
-    float4 target = orElseDefaultLocalPosition;
+    float4 target = float4(0, 0, 0, 0);
     float distSq = 1e+15;
     bool candidateFound = false;
 
@@ -130,6 +129,9 @@ float4 transformArm(
         return vertex;
     }
 
+    float3 HAI_Y_AXIS = float3(0, 1, 0);
+    float3 HAI_Z_AXIS = float3(0, 0, 1);
+
     bool isForearm = false;
     float forearmRatio = 0;
     if (vertexColor.r >= 0.2) // HAND + FOREARM
@@ -140,22 +142,33 @@ float4 transformArm(
 
     // find the target
     float totalArmLength = upperarmLength + forearmLength;
-    float3 computationLocalPos = findMatchingLightAsLocalPosition(
+    float4 maybeLocalPos = maybeFindMatchingLightAsLocalPosition(
         targetLightIntensity,
-        orElseDefaultLocalPosition,
         totalArmLength + extraGrabLength + flexBackLength + defaultLength
-    ).xyz;
-
-    // calculate a virtual target within reach of the arm (it is assumed that orElseDefaultLocalPosition is within reach)
-    float3 targetLocalPos = calculateVirtualTarget(
-        computationLocalPos,
-        totalArmLength,
-        extraGrabLength,
-        flexBackLength,
-        defaultLength,
-        flexBackRatio,
-        orElseDefaultLocalPosition
     );
+    bool lightFound = maybeLocalPos.w != 0;
+
+    float3 targetLocalPos;
+    if (lightFound) {
+        float3 computationLocalPos = maybeLocalPos.xyz;
+        if (isLeftArm) {
+            computationLocalPos = mul( rotation(HAI_pi, HAI_Z_AXIS), computationLocalPos);
+        }
+
+        // calculate a virtual target within reach of the arm (it is assumed that orElseDefaultLocalPosition is within reach)
+        targetLocalPos = calculateVirtualTarget(
+             computationLocalPos,
+             totalArmLength,
+             extraGrabLength,
+             flexBackLength,
+             defaultLength,
+             flexBackRatio,
+             orElseDefaultLocalPosition
+         );
+
+    } else {
+        targetLocalPos = orElseDefaultLocalPosition;
+    }
 
     // calculate target attributes
     float distToTargetSq = targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y + targetLocalPos.z * targetLocalPos.z;
@@ -167,13 +180,14 @@ float4 transformArm(
 
     float pitch = -atan(targetLocalPos.z / sqrt( targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y ));
     float yaw = (targetLocalPos.x < 0 ? HAI_pi : 0) + atan(targetLocalPos.y / targetLocalPos.x);
-    float roll = (isLeftArm ? yaw : -yaw) - HAI_pi * 0.2;
+    float roll = (isLeftArm ? 1 : -1) * HAI_pi * 0.2 - yaw;
 
     // transform the vertex
     float3 outputVertex = vertex;
+    if (isLeftArm) {
+        outputVertex = mul( rotation(HAI_pi, HAI_Z_AXIS), outputVertex);
+    }
 
-    float3 HAI_Y_AXIS = float3(0, 1, 0);
-    float3 HAI_Z_AXIS = float3(0, 0, 1);
     if (isForearm)
     {
         float4 ARMVEC = float4(upperarmLength, 0, 0, 0);
@@ -185,6 +199,10 @@ float4 transformArm(
     outputVertex = mul( rotation(roll, normalize( float4(targetLocalPos.xyz, 0) )), outputVertex);
 
     outputVertex = lerp(outputVertex, vertex, vertexColor.b);
+
+    if (isLeftArm) {
+        outputVertex = mul( rotation(HAI_pi, HAI_Z_AXIS), outputVertex);
+    }
 
     return float4(outputVertex, 1);
 }

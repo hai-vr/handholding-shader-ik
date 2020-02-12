@@ -8,6 +8,7 @@
 		_ExtraForearmLength ("Addition length of the forearm and hand", Float) = 500
 		_ExtraGrabRatio ("Ratio of extra reach toward light", Float) = 0.5
 		_ShaderIKTargetLightIntensity ("Shader IK Target light intensity", Float) = 0.1234
+		[IntRange] _IsLeftArm ("Is left arm", Range(0, 1)) = 0
 	}
 	SubShader
 	{
@@ -51,6 +52,7 @@
             float _ExtraForearmLength;
             float _ExtraGrabRatio;
             float _ShaderIKTargetLightIntensity;
+            int _IsLeftArm;
 
 			v2f vert (appdata v)
 			{
@@ -58,21 +60,21 @@
 
 				// scale up the base mesh so that players with shaders disabled will not see the fake arm
 				float4 visibleVertex = float4(v.vertex.xyz, 1);
-
+                bool isLeftArm = _IsLeftArm >= 1;
                 float4 outputVertex = UnityObjectToClipPos(
                     transformArm(
                         visibleVertex, // input vertex position
                         v.color, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
                         _ShaderIKTargetLightIntensity, // when set to a negative value, any black light will be matched
                         true, // when set to true, target will be the closest distance to the shoulder instead of the first match
-                        float4(0.001, -0.002, -0.003, 1) + float4(
+                        float4(0.001, (isLeftArm ? -1 : 1) * -0.002, -0.003, 1) + float4(
                             sin(_Time.y * 0.3) * 0.00002,
                             sin(_Time.y * 0.43) * 0.000035,
                             sin(_Time.y * 1.24) * 0.00015, 0), // hand rest position when no light matches or when it is too far
                         _BoneLength / 1000000, // length of the upper arm
                         (_BoneLength + _ExtraForearmLength) / 1000000, // length of the forearm up to the palm of the hand
                         (_BoneLength * _ExtraGrabRatio + _ExtraForearmLength) / 1000000, // arm will point towards the target even when out of reach, up to this extra length limit
-                        false
+                        isLeftArm
                     )
                 );
 
