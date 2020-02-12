@@ -42,7 +42,9 @@ float4 findMatchingLightAsLocalPosition(
         if (
             lightColor.r == 0 && lightColor.g == 0 && lightColor.b == 0
             && !(unity_4LightPosX0[i] == 0 && unity_4LightPosY0[i] == 0 && unity_4LightPosZ0[i] == 0)
-            && (targetLightIntensity < 0 || abs(lightColor.a - targetLightIntensity) < 0.001)
+            && ((targetLightIntensity < 0 && abs(lightColor.a + targetLightIntensity) >= 0.001) ||
+                targetLightIntensity == 0 ||
+                (targetLightIntensity > 0 && abs(lightColor.a - targetLightIntensity) < 0.001))
         )
         {
             float4 current = mul ( unity_WorldToObject, float4(unity_4LightPosX0[i], unity_4LightPosY0[i], unity_4LightPosZ0[i], 1));
