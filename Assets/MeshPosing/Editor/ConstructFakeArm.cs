@@ -244,7 +244,7 @@ public class ConstructFakeArm : EditorWindow {
                 }
             }
         }
-        List<int> extraArmTris = new List<int>();
+
         extraArmMesh.SetVertices(extraArmVertices);
         if (extraArmNormals.Count > 0) {
             extraArmMesh.SetNormals(extraArmNormals);
@@ -265,8 +265,10 @@ public class ConstructFakeArm : EditorWindow {
             extraArmMesh.SetUVs (3, extraArmUV4);
         }
         extraArmMesh.SetColors(extraArmColors);
-        extraArmMesh.subMeshCount = 1;
+        extraArmMesh.subMeshCount = sourceMesh.subMeshCount;
+        int extraArmMeshCount = 0;
         for (int i = 0; i < sourceMesh.subMeshCount; i++) {
+            List<int> extraArmTris = new List<int>();
             var curIndices = sourceMesh.GetIndices (i);
             for (int idx = 0; idx < curIndices.Count(); idx += 3) {
                 int v1, v2, v3;
@@ -278,8 +280,12 @@ public class ConstructFakeArm : EditorWindow {
                     extraArmTris.Add(v3);
                 }
             }
+            if (extraArmTris.Any()) {
+                extraArmMesh.SetIndices (extraArmTris.ToArray(), MeshTopology.Triangles, extraArmMeshCount);
+                extraArmMeshCount++;
+            }
         }
-        extraArmMesh.SetIndices (extraArmTris.ToArray(), MeshTopology.Triangles, 0);
+        extraArmMesh.subMeshCount = extraArmMeshCount;
         extraArmMesh.bounds = new Bounds(new Vector3(0,0,0), new Vector3(distanceToFingertip, distanceToFingertip, distanceToFingertip));
         extraArmMesh.name = sourceMesh.name + "_fakearm";
 
@@ -297,7 +303,7 @@ public class ConstructFakeArm : EditorWindow {
         extraArmMeshFilter.sharedMesh = extraArmMesh;
         extraArmMesh = extraArmMeshFilter.sharedMesh;
         MeshRenderer extraArmMeshRenderer = extraGO.AddComponent<MeshRenderer>();
-        extraArmMeshRenderer.sharedMaterials = new Material[1];
+        extraArmMeshRenderer.sharedMaterials = new Material[extraArmMeshCount];
         Undo.RegisterCreatedObjectUndo(extraArmMeshFilter.gameObject, "Create Fake Arm MeshRenderer");
 
         string fileName = pathToGenerated + "/constructFakeArm_extra_" + DateTime.UtcNow.ToString ("s").Replace (':', '_') + ".asset";
