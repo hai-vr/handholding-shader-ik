@@ -212,7 +212,7 @@ public class ConstructFakeArm : EditorWindow {
                 extraArmVertIdxMap[i] = extraArmVertices.Count;
                 float curDist = poseBakedVertices[i].magnitude;
                 distanceToFingertip = distanceToFingertip > curDist ? distanceToFingertip : curDist;
-                extraArmVertices.Add(poseBakedVertices[i]);
+                extraArmVertices.Add(poseBakedVertices[i] / 1024.0f);
                 float upperArmWeight = sumWeight(bw, armBoneIdx);
                 //float shoulderWeight = sumWeight(bw, shoulderBoneIdx);
                 float lowerArmWeight = sumWeight(bw, lowerArmBones);

@@ -74,6 +74,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _BoneLength: 2438
+    - _VertexScale: 1024
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

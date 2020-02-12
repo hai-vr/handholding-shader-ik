@@ -8,6 +8,7 @@
 		_ExtraForearmLength ("Addition length of the forearm and hand", Float) = 500
 		_ExtraGrabRatio ("Ratio of extra reach toward light", Float) = 0.5
 		_ShaderIKTargetLightIntensity ("Shader IK Target light intensity", Float) = 0.1234
+		_VertexScale ("Mesh vertex scale. Editor script uses 1024", Float) = 1024
 		[IntRange] _IsLeftArm ("Is left arm", Range(0, 1)) = 0
 	}
 	SubShader
@@ -52,6 +53,7 @@
             float _ExtraForearmLength;
             float _ExtraGrabRatio;
             float _ShaderIKTargetLightIntensity;
+            float _VertexScale;
             int _IsLeftArm;
 
 			v2f vert (appdata v)
@@ -59,7 +61,7 @@
 				v2f o;
 
 				// scale up the base mesh so that players with shaders disabled will not see the fake arm
-				float4 visibleVertex = float4(v.vertex.xyz, 1);
+				float4 visibleVertex = float4(v.vertex.xyz * _VertexScale, 1);
                 bool isLeftArm = _IsLeftArm >= 1;
                 float4 outputVertex = UnityObjectToClipPos(
                     transformArm(
