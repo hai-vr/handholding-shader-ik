@@ -106,6 +106,9 @@ float3 calculateVirtualTarget(
 
 #define HAI_pi float(3.14159265359)
 
+float acos_c(float rad) { return acos(clamp(rad, -1, 1)); }
+float asin_c(float rad) { return asin(clamp(rad, -1, 1)); }
+
 float4 transformArm(
     float4 vertex, // input vertex position
     float4 vertexColor, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
@@ -157,19 +160,8 @@ float4 transformArm(
     float distToTarget = sqrt(distToTargetSq);
 
     // calculate rotation angles
-    float forearmFlexAngle = acos((distToTargetSq - upperarmLength * upperarmLength - forearmLength * forearmLength) / (-2 * upperarmLength * forearmLength));
-    float entirearmFlexAngle = asin((forearmLength * sin(forearmFlexAngle)) / distToTarget);
-
-    if (isnan(forearmFlexAngle))
-    {
-        forearmFlexAngle = HAI_pi;
-        entirearmFlexAngle = 0;
-    }
-
-    if (isnan(entirearmFlexAngle))
-    {
-        entirearmFlexAngle = HAI_pi / 2;
-    }
+    float forearmFlexAngle = acos_c((distToTargetSq - upperarmLength * upperarmLength - forearmLength * forearmLength) / (-2 * upperarmLength * forearmLength));
+    float entirearmFlexAngle = asin_c((forearmLength * sin(forearmFlexAngle)) / distToTarget);
 
     float pitch = -atan(targetLocalPos.z / sqrt( targetLocalPos.x * targetLocalPos.x + targetLocalPos.y * targetLocalPos.y ));
     float yaw = (targetLocalPos.x < 0 ? HAI_pi : 0) + atan(targetLocalPos.y / targetLocalPos.x);
