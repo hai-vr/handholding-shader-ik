@@ -108,8 +108,8 @@ float3 calculateVirtualTarget(
 
 #define HAI_pi float(3.14159265359)
 
-float acos_c(float rad) { return acos(clamp(rad, -1, 1)); }
-float asin_c(float rad) { return asin(clamp(rad, -1, 1)); }
+float acos_c(float input) { return acos(clamp(input, -1, 1)); }
+float asin_c(float input) { return asin(clamp(input, -1, 1)); }
 
 float4 transformArm(
     float4 vertex, // input vertex position
