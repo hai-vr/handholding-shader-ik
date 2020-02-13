@@ -3,7 +3,8 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_EnableFakeArm ("Enable Fake arm (for use with gesture animation)", Float) = 1
+		_EnableFakeArm ("Enable Fake right arm (for use with gesture animation)", Float) = 1
+		_EnableFakeLeftArm ("Enable Fake left arm (for use with gesture animation)", Float) = 0
 	}
 	SubShader
 	{
@@ -40,6 +41,7 @@
 			float4 _MainTex_ST;
 
 			float _EnableFakeArm;
+			float _EnableFakeLeftArm;
 			
 			v2f vert (appdata v)
 			{
@@ -57,6 +59,9 @@
                 for (int i = 0; i < 3; i ++)
                 {
                     if (_EnableFakeArm > 0.5 && IN[i].color.g == 0 && IN[i].color.b == 0) {
+                        return;
+                    }
+                    if (_EnableFakeLeftArm > 0.5 && IN[i].color.r == 0 && IN[i].color.g == 0) {
                         return;
                     }
                     tristream.Append(IN[i]);

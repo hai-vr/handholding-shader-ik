@@ -178,6 +178,8 @@ public class ConstructFakeArm : EditorWindow {
         sourceMesh.GetUVs (3, srcUV4);
         List<Vector3> srcVertices = new List<Vector3>();
         sourceMesh.GetVertices(srcVertices);
+        List<Color> srcColors = new List<Color>();
+        sourceMesh.GetColors(srcColors);
         List<Vector3> srcNormals = new List<Vector3>();
         sourceMesh.GetNormals(srcNormals);
         List<Vector4> srcTangents = new List<Vector4>();
@@ -347,9 +349,11 @@ public class ConstructFakeArm : EditorWindow {
             }
             BoneWeight bw = srcBoneWeights[i];
             if (sumWeight(bw, lowerArmBones) + sumWeight(bw, armBoneIdx) >= SHOULDER_HIDE_DUPLICATE_THRESH) {
-                newColors.Add(Color.red);
-            } else {
+                newColors.Add(isRight ? Color.red : Color.blue);
+            } else if (i >= srcColors.Count || (srcColors[i].r <= 0.5 && srcColors[i].b <= 0.5)) {
                 newColors.Add(Color.white);
+            } else {
+                newColors.Add(srcColors[i]);
             }
         }
         for (int i = size; i < newVertCount; i++) {
