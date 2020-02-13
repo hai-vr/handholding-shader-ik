@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine.Rendering;
+
 #if UNITY_EDITOR
 public class ConstructFakeArm : EditorWindow {
 
@@ -306,6 +308,10 @@ public class ConstructFakeArm : EditorWindow {
         extraArmMesh = extraArmMeshFilter.sharedMesh;
         MeshRenderer extraArmMeshRenderer = extraGO.AddComponent<MeshRenderer>();
         extraArmMeshRenderer.sharedMaterials = new Material[extraArmMeshCount];
+        extraArmMeshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        extraArmMeshRenderer.receiveShadows = false;
+        smr.probeAnchor = smr.probeAnchor != null ? smr.probeAnchor : anim.GetBoneTransform(HumanBodyBones.Hips);
+        extraArmMeshRenderer.probeAnchor = smr.probeAnchor;
         Undo.RegisterCreatedObjectUndo(extraArmMeshFilter.gameObject, "Create Fake Arm MeshRenderer");
 
         string fileName = pathToGenerated + "/constructFakeArm_extra_" + DateTime.UtcNow.ToString ("s").Replace (':', '_') + ".asset";
