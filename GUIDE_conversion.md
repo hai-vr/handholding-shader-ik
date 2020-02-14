@@ -24,7 +24,7 @@ For now, **we provide a simple unlit shader** that will look okay in some worlds
 
 In the future we may provide existing shaders that have been modified for use with *HSIK*.
 
-If you are up for the task, read our [Advanced shader guide](GUIDE_advanced.md).
+If you are up for the task, read our [Advanced shader guide](GUIDE_advanced_shader.md).
 
 ## How can I convert my avatar?
 
