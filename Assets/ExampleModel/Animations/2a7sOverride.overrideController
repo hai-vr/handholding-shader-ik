@@ -8,5 +8,7 @@ AnimatorOverrideController:
   m_Name: 2a7sOverride
   m_Controller: {fileID: 9100000, guid: 596fbaf43def8a54999157a5089972da, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: 7400056, guid: 7e5debf235ac2d54397a268de3328672, type: 3}
+  - m_OriginalClip: {fileID: 7400002, guid: 7e5debf235ac2d54397a268de3328672, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: c43811436f8fd453bbaf5d2f0e78ad9d, type: 2}
+  - m_OriginalClip: {fileID: 7400058, guid: 7e5debf235ac2d54397a268de3328672, type: 3}
     m_OverrideClip: {fileID: 7400000, guid: d9b9b9dc3069620479f0fa76fca58c14, type: 2}
