@@ -14,6 +14,8 @@ As it is a shader, the effect is not affected by lag: It will give the appearanc
 
 The process of converting two avatars for use with Handholding Shader IK may be challenging; head over to the [Conversion guide](GUIDE_conversion.md).
 
+If you want to modify this shader for other uses, take at look at the [Mathematical guide](GUIDE_math.md).
+
 ## Authors
 
 This shader was created by **Haï~** ([twitter](https://twitter.com/vr_hai), [github](https://github.com/hai-vr)).
