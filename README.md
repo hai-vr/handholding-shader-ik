@@ -26,3 +26,5 @@ As Haï~, I would like to thank:
 
 - **Lyuma** for inspiring me to create this shader, for being overall awesome and being my dance partner.
 - **d4rkpl4y3r** for teaching me the black light technique.
+
+![](https://github.com/hai-vr/handholding-shader-ik/raw/z-res-pictures/Documentation/head.jpg)
