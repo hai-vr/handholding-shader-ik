@@ -27,7 +27,7 @@ float3x3 rotation(float angle, float3 axis)
 }
 
 float4 maybeFindMatchingLightAsLocalPosition(
-    float targetLightIntensity, // when set to a negative value, it will match any black light
+    float targetLightIntensity, // when set to a negative value, it will match any black light except this absolute value. when set to zero, it will match any black light.
     float maxDistance)
 {
     float4 target = float4(0, 0, 0, 0);
@@ -113,7 +113,7 @@ float asin_c(float input) { return asin(clamp(input, -1, 1)); }
 float4 transformArm(
     float4 vertex, // input vertex position
     float4 vertexColor, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
-    float targetLightIntensity, // when set to a negative value, any black light will be matched
+    float targetLightIntensity, // when set to a negative value, it will match any black light except this absolute value. when set to zero, it will match any black light.
     float4 orElseDefaultLocalPosition, // hand rest position when no light matches or when it is too far
     float upperarmLength, // length of the upper arm
     float forearmLength, // length of the forearm up to the palm of the hand

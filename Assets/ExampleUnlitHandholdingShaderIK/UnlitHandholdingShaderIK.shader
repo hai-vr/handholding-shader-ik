@@ -67,7 +67,7 @@
                     transformArm(
                         visibleVertex, // input vertex position
                         v.color, // input vertex color: hand and forearm are red (or blue), upperarm is green, the rest must be white
-                        _ShaderIKTargetLightIntensity, // when set to a negative value, any black light will be matched
+                        _ShaderIKTargetLightIntensity, // when set to a negative value, it will match any black light except this absolute value. when set to zero, it will match any black light.
                         true, // when set to true, target will be the closest distance to the shoulder instead of the first match
                         float4(0.001, (isLeftArm ? -1 : 1) * -0.002, -0.003, 1) + float4(
                             sin(_Time.y * 0.3) * 0.00002,
