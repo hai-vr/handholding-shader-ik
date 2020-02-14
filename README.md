@@ -4,9 +4,9 @@ This shader allows two avatars to be holding hands, mainly designed for dancing.
 
 A very simplistic [IK system](https://en.wikipedia.org/wiki/Inverse_kinematics) is reprogrammed within the shader code to control a fake arm of one avatar, which will be attracted towards a special light of another avatar.
 
-![](https://github.com/hai-vr/handholding-shader-ik/raw/z-res-pictures/Documentation/demo_1.gif)
+[![](https://github.com/hai-vr/handholding-shader-ik/raw/z-res-pictures/Documentation/demo_1.gif)](https://twitter.com/Lyuma2d/status/1228326801056792576)
 
-*This is not an animation!*
+*This is not an animation!* ([Full video](https://twitter.com/Lyuma2d/status/1228326801056792576))
 
 As it is a shader, the effect is not affected by lag: It will give the appearance of handholding from the perspective of everyone with shaders and particles enabled, no matter the delay between the two dancers.
 
